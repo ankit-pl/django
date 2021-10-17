@@ -1,6 +1,12 @@
+from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
 from .models import User
+
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']
 
 class RegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
