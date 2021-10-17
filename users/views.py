@@ -42,12 +42,9 @@ class ChangePasswordView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, email):
-        user = User.objects.get(email=email)
-        # match existing password
-        if True:
-            serializer = ChangePasswordSerializer(instance=user, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response('failed')
+    def post(self, request):
+        serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(f'Password for user "{user.email}" updated.')
+        return Response(serializer.errors)
