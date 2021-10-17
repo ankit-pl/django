@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 import environ
+import rest_framework
 
 # Initialise environment variables
 env = environ.Env()
@@ -47,7 +48,14 @@ INSTALLED_APPS = [
     'polls.apps.PollsConfig',
     'products.apps.ProductsConfig',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication'
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
