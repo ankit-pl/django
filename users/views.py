@@ -1,11 +1,12 @@
-from .models import User
+from .models import User, Wallet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (RegisterSerializer, ChangePasswordSerializer,
-                          LoginSerializer, ProfileSerializer)
+                          LoginSerializer, ProfileSerializer,
+                          BalanceSerializer)
 
 
 class LoginView(APIView):
@@ -71,3 +72,30 @@ class ProfileView(APIView):
     def get(self, request):
         serializer = ProfileSerializer(instance=request.user)
         return Response(serializer.data)
+
+    def put(self, request):
+        serializer = ProfileSerializer(instance=request.user,
+                                       data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(f'Profile for user "{user.email}" updated.')
+        return Response(serializer.errors)
+
+
+class BalanceView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        wallet = Wallet.objects.get(user=request.user)
+        serializer = BalanceSerializer(instance=wallet)
+        return Response(serializer.data)
+
+    def put(self, request):
+        wallet = Wallet.objects.get(user=request.user)
+        serializer = BalanceSerializer(instance=wallet,
+                                       data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(f'Balance for user "{wallet.user}" updated.')
+        return Response(serializer.errors)

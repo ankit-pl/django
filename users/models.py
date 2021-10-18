@@ -37,3 +37,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+        Wallet.objects.create(user=instance)
+
+
+class Wallet(models.Model):
+    wallet_id = models.UUIDField(primary_key=True, default=uuid.uuid4,
+                                 editable=False)
+    balance = models.CharField(max_length=10, default='0')
+    currency = models.CharField(max_length=5, default='INR')
+    last_transaction_date = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)

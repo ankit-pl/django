@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Wallet
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -54,3 +54,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name',
                   'username', 'email', 'image', 'geo_location']
+
+
+class BalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ['balance', 'currency', 'last_transaction_date']
