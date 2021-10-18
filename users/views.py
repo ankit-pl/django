@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from .serializers import RegisterSerializer, ChangePasswordSerializer
 
 class LoginView(APIView):
@@ -16,8 +17,9 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            user = serializer.save()
+            token = Token.objects.get(user=user).key
+            return Response(f'User registered. Use "{token}" auth token to access the API.')
         return Response(serializer.errors)
 
 class ChangePasswordView(APIView):
