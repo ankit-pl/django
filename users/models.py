@@ -1,6 +1,8 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser, PermissionsMixin, UserManager
+)
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -8,7 +10,8 @@ from rest_framework.authtoken.models import Token
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4,
+                               editable=False)
     email = models.CharField(max_length=100, unique=True, null=False)
     username = models.CharField(max_length=100, unique=True, default="")
     password = models.CharField(max_length=255)
@@ -17,6 +20,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=100, default="")
     last_name = models.CharField(max_length=100)
     geo_location = models.TextField()
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
     metadata = models.JSONField(default=list)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)

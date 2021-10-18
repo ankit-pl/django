@@ -13,16 +13,25 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "first_name", "password", "confirm_password"]
+        fields = [
+            "email",
+            "username",
+            "first_name",
+            "password",
+            "confirm_password"
+        ]
 
     def save(self):
         user = User(
-            email=self.validated_data["email"], username=self.validated_data["username"]
+            email=self.validated_data["email"],
+            username=self.validated_data["username"]
         )
         password = self.validated_data["password"]
         confirm_password = self.validated_data["confirm_password"]
         if password != confirm_password:
-            raise serializers.ValidationError({"password": "Passwords must match."})
+            raise serializers.ValidationError(
+                {"password": "Passwords must match."}
+            )
         user.set_password(password)
         user.save()
         return user
@@ -38,3 +47,10 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         self.instance.set_password(password)
         self.instance.save()
         return self.instance
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name',
+                  'username', 'email', 'image', 'geo_location']
