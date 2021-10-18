@@ -1,2 +1,5 @@
 .env
 manage.py
+# __pycache__/
+migrations/
+.vscode/

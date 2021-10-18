@@ -1,3 +1,5 @@
+from typing import DefaultDict
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.utils.translation import gettext_lazy
@@ -30,16 +32,16 @@ from django.utils.translation import gettext_lazy
 #         return self.create_user(email, username, first_name, password, **other_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
-    user_id = models.UUIDField(primary_key=True)
+    user_id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     email = models.CharField(max_length=100, unique=True, null=False)
     username = models.CharField(max_length=100, unique=True, default='')
     password = models.CharField(max_length=255)
-    last_login = models.DateTimeField()
+    last_login = models.DateTimeField(auto_now=True)
     date_created = models.DateTimeField(auto_now_add=True)
-    first_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100)
     geo_location = models.TextField()
-    metadata = models.JSONField()
+    metadata = models.JSONField(default=list)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 

@@ -1,14 +1,32 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
+from rest_framework import serializers
+from .models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .serializers import RegisterSerializer, ChangePasswordSerializer
 
-# Create your views here.
-def register(request):
-    if request.method == 'POST':
-        form  = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            return redirect('http://localhost:8000/accounts/login')
-    else:
-        form  = UserCreationForm()
-    return render(request, 'users/register.html', {'form': form})
+class LoginView(APIView):
+    def post(self, request):
+        pass
+
+class LogoutView(APIView):
+    def get(self, request):
+        pass
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+class ChangePasswordView(APIView):
+    def post(self, request, email):
+        user = User.objects.get(email=email)
+        # match existing password
+        if True:
+            serializer = ChangePasswordSerializer(instance=user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response('failed')
