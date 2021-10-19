@@ -149,6 +149,8 @@ MEDIA_URL = "/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = "http://localhost:8000/"
+BASE_URL = "http://localhost:8000"
 
 AUTH_USER_MODEL = "users.User"
+
+STRIPE_API_KEY = env("STRIPE_API_KEY")
