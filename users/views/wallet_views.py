@@ -1,4 +1,4 @@
-from ..models import Wallet
+from ..models import WalletInformation
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
@@ -24,14 +24,14 @@ class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        wallet = Wallet.objects.get(user=request.user)
+        wallet = WalletInformation.objects.get(user=request.user)
         serializer = BalanceSerializer(instance=wallet)
         response_data = SuccessSerializer({"data": serializer.data}).data
 
         return Response(response_data)
 
     def put(self, request):
-        wallet = Wallet.objects.get(user=request.user)
+        wallet = WalletInformation.objects.get(user=request.user)
         serializer = BalanceSerializer(instance=wallet, data=request.data)
 
         if not serializer.is_valid():

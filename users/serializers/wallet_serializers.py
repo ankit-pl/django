@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Wallet, Transaction
+from ..models import WalletInformation, Transaction
 
 
 class BalanceSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class BalanceSerializer(serializers.ModelSerializer):
     """
 
     class Meta:
-        model = Wallet
+        model = WalletInformation
         fields = ["balance", "currency", "last_transaction_date"]
 
     def add_balance(self):

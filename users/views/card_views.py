@@ -34,7 +34,7 @@ class CardsView(APIView):
             serializer = CardSerializer(instance=card)
             data.append(serializer.data)
 
-        response_data = SuccessSerializer({"data": data})
+        response_data = SuccessSerializer({"data": data}).data
 
         return Response(response_data)
 
