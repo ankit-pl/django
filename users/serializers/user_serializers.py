@@ -12,6 +12,19 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "password"]
 
+    def login(self):
+        email = self.validated_data["username"]
+        password = self.validated_data["password"]
+        user = User.objects.get(email=email)
+        if user.check_password(password):
+            response = {
+                "message": "User logged-in. Use auth token to access the API.",
+                "data": {"auth_token": user.auth_token.key},
+            }
+        else:
+            response = {"message": "Please enter the correct password."}
+        return response
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     """
@@ -37,6 +50,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def register(self):
+        user = self.save()
+
+        return {
+            "message": "User registered. Use auth token to access the API.",
+            "data": {"auth_token": user.auth_token.key},
+        }
+
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
     """
@@ -54,6 +75,11 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
         self.instance.save()
         return self.instance
 
+    def change_password(self):
+        user = self.save()
+
+        return {"message": f"Password for user '{user.email}' updated."}
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     """
@@ -70,6 +96,11 @@ class ProfileSerializer(serializers.ModelSerializer):
             "image",
             "geo_location",
         ]
+
+    def update_profile(self):
+        user = self.save()
+
+        return {"message": f"Profile for user '{user.email}' updated."}
 
     def util(self):
         base_url = settings.BASE_URL
