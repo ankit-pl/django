@@ -65,7 +65,9 @@ class CardsView(APIView):
 
             return Response(response_data)
         except Card.DoesNotExist:
-            error = ErrorSerializer({"status": 400, "message": "Card does not exist."})
+            error = ErrorSerializer(
+                {"status": 400, "message": "Card does not exist."}
+            )
 
             return Response(error.data)
         except Exception:
