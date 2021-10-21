@@ -3,7 +3,7 @@ from .. import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path("signup", views.RegisterView.as_view(), name="register"),
+    path("signup", views.RegisterView.as_view(), name="signup"),
     path("change-password", views.ChangePasswordView.as_view(),
          name="change-password"),
     path("login", views.LoginView.as_view(), name="login"),

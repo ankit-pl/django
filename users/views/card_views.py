@@ -11,6 +11,7 @@ from ..serializers import (
     CardSerializer,
 )
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 class CardsView(APIView):
@@ -66,13 +67,13 @@ class CardsView(APIView):
             return Response(response_data)
         except Card.DoesNotExist:
             error = ErrorSerializer(
-                {"status": 400, "message": "Card does not exist."}
+                {"status": 400, "message": _("Card does not exist.")}
             )
 
             return Response(error.data)
         except Exception:
             error = ErrorSerializer(
-                {"status": 400, "message": "Card id is not provided."}
+                {"status": 400, "message": _("Card id is not provided.")}
             )
 
             return Response(error.data)

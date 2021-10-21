@@ -22,6 +22,7 @@ class BalanceView(APIView):
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    throttle_scope = "transaction"
 
     def get(self, request):
         wallet = WalletInformation.objects.get(user=request.user)

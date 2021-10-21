@@ -12,6 +12,7 @@ from ..serializers import (
     SuccessSerializer,
     FailureSerializer,
 )
+from django.utils.translation import gettext_lazy as _
 
 
 class LoginView(APIView):
@@ -37,7 +38,7 @@ class LoginView(APIView):
                     response_data = FailureSerializer(user).data
             except User.DoesNotExist:
                 error = ErrorSerializer(
-                    {"status": 400, "message": "User does not exist."}
+                    {"status": 400, "message": _("User does not exist")}
                 )
                 return Response(error.data)
 
@@ -61,11 +62,13 @@ class RegisterView(APIView):
     will be returned.
     """
 
+    throttle_scope = "signup"
+
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
 
         if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors})
+            response_data = FailureSerializer({"data": serializer.errors}).data
         else:
             user = serializer.register()
             response_data = SuccessSerializer(user).data
@@ -86,7 +89,8 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
+        serializer = ChangePasswordSerializer(instance=request.user,
+                                              data=request.data)
 
         if not serializer.is_valid():
             response_data = FailureSerializer({"data": serializer.errors}).data
@@ -117,7 +121,8 @@ class ProfileView(APIView):
         return Response(response_data)
 
     def put(self, request):
-        serializer = ProfileSerializer(instance=request.user, data=request.data)
+        serializer = ProfileSerializer(instance=request.user,
+                                       data=request.data)
 
         if not serializer.is_valid():
             response_data = FailureSerializer({"data": serializer.errors}).data

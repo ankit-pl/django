@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 from ..models import User
+from django.utils.translation import gettext_lazy as _
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -18,11 +19,11 @@ class LoginSerializer(serializers.ModelSerializer):
         user = User.objects.get(email=email)
         if user.check_password(password):
             response = {
-                "message": "User logged-in. Use auth token to access the API.",
+                "message": _("User logged-in. Use auth token to access the API."),
                 "data": {"auth_token": user.auth_token.key},
             }
         else:
-            response = {"message": "Please enter the correct password."}
+            response = {"message": _("Please enter the correct password.")}
         return response
 
 
@@ -36,25 +37,31 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["email", "username", "first_name", "password", "confirm_password"]
+        fields = ["email", "username",
+                  "first_name", "password",
+                  "confirm_password"]
 
     def save(self):
         user = User(
-            email=self.validated_data["email"], username=self.validated_data["username"]
+            email=self.validated_data["email"],
+            username=self.validated_data["username"]
         )
         password = self.validated_data["password"]
         confirm_password = self.validated_data["confirm_password"]
         if password != confirm_password:
-            raise serializers.ValidationError({"password": "Passwords must match."})
-        user.set_password(password)
-        user.save()
+            raise serializers.ValidationError(
+                {"password": "Passwords must match."}
+            )
+        else:
+            user.set_password(password)
+            user.save()
         return user
 
     def register(self):
         user = self.save()
 
         return {
-            "message": "User registered. Use auth token to access the API.",
+            "message": _("User registered. Use auth token to access the API."),
             "data": {"auth_token": user.auth_token.key},
         }
 
@@ -78,7 +85,7 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     def change_password(self):
         user = self.save()
 
-        return {"message": f"Password for user '{user.email}' updated."}
+        return {"message": _(f"Password for user '{user.email}' updated.")}
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -100,7 +107,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update_profile(self):
         user = self.save()
 
-        return {"message": f"Profile for user '{user.email}' updated."}
+        return {"message": _(f"Profile for user '{user.email}' updated.")}
 
     def util(self):
         base_url = settings.BASE_URL

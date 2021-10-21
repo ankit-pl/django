@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ..models import Card
+from django.utils.translation import gettext_lazy as _
 
 
 class CardSerializer(serializers.ModelSerializer):
@@ -15,7 +16,7 @@ class CardSerializer(serializers.ModelSerializer):
         card = self.save()
 
         return {
-            "message": f"Card created for user '{card.user.email}'",
+            "message": _(f"Card created for user '{card.user.email}'"),
             "data": {"card": self.validated_data},
         }
 
@@ -23,4 +24,4 @@ class CardSerializer(serializers.ModelSerializer):
         card_id = self.instance.card_id
         self.instance.delete()
 
-        return {"message": f"Card with id '{card_id}' deleted."}
+        return {"message": _(f"Card with id '{card_id}' deleted.")}

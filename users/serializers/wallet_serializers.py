@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from ..models import WalletInformation, Transaction
+from django.utils.translation import gettext_lazy as _
 
 
 class BalanceSerializer(serializers.ModelSerializer):
@@ -12,7 +13,9 @@ class BalanceSerializer(serializers.ModelSerializer):
         fields = ["balance", "currency", "last_transaction_date"]
 
     def add_balance(self):
-        wallet = self.save()
-        Transaction.objects.create(amount=wallet.balance, wallet=wallet)
+        self.instance.balance += self.validated_data['balance']
+        self.instance.save()
+        wallet = self.instance
+        Transaction.objects.create(amount=self.validated_data['balance'], wallet=wallet)
 
-        return {"message": f"Balance for user '{wallet.user}' updated."}
+        return {"message": _(f"Balance for user '{wallet.user}' added.")}
