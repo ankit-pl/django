@@ -28,6 +28,5 @@ class ErrorSerializer(serializers.Serializer):
     """
 
     status = serializers.IntegerField(default=500)
-    message = serializers.CharField(max_length=100,
-                                    default=_("Internal Server Error"))
+    message = serializers.CharField(max_length=100, default=_("Internal Server Error"))
     data = serializers.JSONField(default=list)

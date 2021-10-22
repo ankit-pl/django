@@ -89,8 +89,7 @@ class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        serializer = ChangePasswordSerializer(instance=request.user,
-                                              data=request.data)
+        serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
 
         if not serializer.is_valid():
             response_data = FailureSerializer({"data": serializer.errors}).data
@@ -121,8 +120,7 @@ class ProfileView(APIView):
         return Response(response_data)
 
     def put(self, request):
-        serializer = ProfileSerializer(instance=request.user,
-                                       data=request.data)
+        serializer = ProfileSerializer(instance=request.user, data=request.data)
 
         if not serializer.is_valid():
             response_data = FailureSerializer({"data": serializer.errors}).data

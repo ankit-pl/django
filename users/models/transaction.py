@@ -17,5 +17,6 @@ class Transaction(models.Model):
     transaction_details = models.JSONField(default=list)
     status = models.CharField(max_length=50, default="Unknown")
     date_created = models.DateTimeField(auto_now_add=True)
-    wallet = models.ForeignKey(WalletInformation, related_name="transactions",
-                               on_delete=models.CASCADE)
+    wallet = models.ForeignKey(
+        WalletInformation, related_name="transactions", on_delete=models.CASCADE
+    )

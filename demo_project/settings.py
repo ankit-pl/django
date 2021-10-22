@@ -58,13 +58,8 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': [
     #     'rest_framework.permissions.IsAuthenticated'
     # ],
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.ScopedRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'signup': '5/min',
-        'transaction': '5/min'
-    }
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {"signup": "5/min", "transaction": "5/min"},
 }
 
 MIDDLEWARE = [
@@ -145,20 +140,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-LANGUAGES = (
-    ('en', _('English')),
-    ('hi', _('Hindi'))
-)
+LANGUAGES = (("en", _("English")), ("hi", _("Hindi")))
 
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'users/locale')
-]
+LOCALE_PATHS = [os.path.join(BASE_DIR, "users/locale")]
 
-TRANSLATIONS_BASE_DIR = os.path.join(BASE_DIR, 'users')
+TRANSLATIONS_BASE_DIR = os.path.join(BASE_DIR, "users")
 
-TRANSLATIONS_HINT_LANGUAGE = 'en'
+TRANSLATIONS_HINT_LANGUAGE = "en"
 
-TRANSLATIONS_PROJECT_BASE_DIR = os.path.join(BASE_DIR, 'users')
+TRANSLATIONS_PROJECT_BASE_DIR = os.path.join(BASE_DIR, "users")
 
 
 # Static files (CSS, JavaScript, Images)
