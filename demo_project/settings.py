@@ -62,8 +62,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.ScopedRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'signup': '3/day',
-        'transaction': '10/day'
+        'signup': '5/min',
+        'transaction': '5/min'
     }
 }
 

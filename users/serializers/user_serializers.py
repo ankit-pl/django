@@ -50,7 +50,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         confirm_password = self.validated_data["confirm_password"]
         if password != confirm_password:
             raise serializers.ValidationError(
-                {"password": "Passwords must match."}
+                {"password": _("Passwords must match.")}
             )
         else:
             user.set_password(password)
