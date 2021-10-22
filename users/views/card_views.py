@@ -9,6 +9,9 @@ from ..serializers import (
     SuccessSerializer,
     FailureSerializer,
     CardSerializer,
+    SuccessSerializerV2,
+    FailureSerializerV2,
+    CardSerializerV2,
 )
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
@@ -27,19 +30,26 @@ class CardsView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, version="v2"):
         data = []
         cards = Card.objects.filter(user=request.user)
 
-        for card in cards:
-            serializer = CardSerializer(instance=card)
-            data.append(serializer.data)
+        if version == "v1":
+            for card in cards:
+                serializer = CardSerializer(instance=card)
+                data.append(serializer.data)
 
-        response_data = SuccessSerializer({"data": data}).data
+            response_data = SuccessSerializer({"data": data}).data
+        else:
+            for card in cards:
+                serializer = CardSerializerV2(instance=card)
+                data.append(serializer.data)
+
+            response_data = SuccessSerializerV2({"data": data}).data
 
         return Response(response_data)
 
-    def post(self, request):
+    def post(self, request, version="v2"):
         stripe.api_key = settings.STRIPE_API_KEY
         card = stripe.Customer.create_source(
             request.user.customer_id,
@@ -47,22 +57,37 @@ class CardsView(APIView):
         )
         request.data["card_id"] = card.id
         request.data["user"] = request.user.user_id
-        serializer = CardSerializer(data=request.data)
 
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+        if version == "v1":
+            serializer = CardSerializer(data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                card = serializer.add_card()
+                response_data = SuccessSerializer(card).data
         else:
-            card = serializer.add_card()
-            response_data = SuccessSerializer(card).data
+            serializer = CardSerializerV2(data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                card = serializer.add_card()
+                response_data = SuccessSerializerV2(card).data
 
         return Response(response_data)
 
-    def delete(self, request):
+    def delete(self, request, version="v2"):
         try:
             card = Card.objects.get(card_id=request.data["card_id"])
-            serializer = CardSerializer(instance=card)
-            card = serializer.delete()
-            response_data = SuccessSerializer(card).data
+            if version == "v1":
+                serializer = CardSerializer(instance=card)
+                card = serializer.delete()
+                response_data = SuccessSerializer(card).data
+            else:
+                serializer = CardSerializerV2(instance=card)
+                card = serializer.delete()
+                response_data = SuccessSerializerV2(card).data
 
             return Response(response_data)
         except Card.DoesNotExist:

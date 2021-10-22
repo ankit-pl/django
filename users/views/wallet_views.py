@@ -7,6 +7,9 @@ from ..serializers import (
     BalanceSerializer,
     SuccessSerializer,
     FailureSerializer,
+    BalanceSerializerV2,
+    SuccessSerializerV2,
+    FailureSerializerV2,
 )
 
 
@@ -24,21 +27,36 @@ class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
     throttle_scope = "transaction"
 
-    def get(self, request):
+    def get(self, request, version="v2"):
         wallet = WalletInformation.objects.get(user=request.user)
-        serializer = BalanceSerializer(instance=wallet)
-        response_data = SuccessSerializer({"data": serializer.data}).data
+
+        if version == "v1":
+            serializer = BalanceSerializer(instance=wallet)
+            response_data = SuccessSerializer({"data": serializer.data}).data
+        else:
+            serializer = BalanceSerializerV2(instance=wallet)
+            response_data = SuccessSerializerV2({"data": serializer.data}).data
 
         return Response(response_data)
 
-    def put(self, request):
+    def put(self, request, version="v2"):
         wallet = WalletInformation.objects.get(user=request.user)
-        serializer = BalanceSerializer(instance=wallet, data=request.data)
 
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+        if version == "v1":
+            serializer = BalanceSerializer(instance=wallet, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                balance = serializer.add_balance()
+                response_data = SuccessSerializer(balance).data
         else:
-            balance = serializer.add_balance()
-            response_data = SuccessSerializer(balance).data
+            serializer = BalanceSerializerV2(instance=wallet, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                balance = serializer.add_balance()
+                response_data = SuccessSerializerV2(balance).data
 
         return Response(response_data)

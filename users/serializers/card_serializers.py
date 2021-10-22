@@ -17,7 +17,11 @@ class CardSerializer(serializers.ModelSerializer):
 
         return {
             "message": _(f"Card created for user '{card.user.email}'"),
-            "data": {"card": self.validated_data},
+            "data": {
+                "card_id": card.card_id,
+                "last_transaction_date": card.last_transaction_date,
+                "date_created": card.date_created,
+            },
         }
 
     def delete(self):

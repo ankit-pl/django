@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from ..models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +12,15 @@ from ..serializers import (
     ErrorSerializer,
     SuccessSerializer,
     FailureSerializer,
+    RegisterSerializerV2,
+    ChangePasswordSerializerV2,
+    LoginSerializerV2,
+    ProfileSerializerV2,
+    ErrorSerializerV2,
+    SuccessSerializerV2,
+    FailureSerializerV2,
+    LogoutSerializer,
+    LogoutSerializerV2,
 )
 from django.utils.translation import gettext_lazy as _
 
@@ -24,23 +34,39 @@ class LoginView(APIView):
     will be returned.
     """
 
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+    def post(self, request, version="v2"):
+        if version == "v1":
+            serializer = LoginSerializer(data=request.data)
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                try:
+                    user = serializer.login()
+                    if user.get("data"):
+                        response_data = SuccessSerializer(user).data
+                    else:
+                        response_data = FailureSerializer(user).data
+                except User.DoesNotExist:
+                    error = ErrorSerializer(
+                        {"status": 400, "message": _("User does not exist")}
+                    )
+                    return Response(error.data)
         else:
-            try:
-                user = serializer.login()
-                if user.get("data"):
-                    response_data = SuccessSerializer(user).data
-                else:
-                    response_data = FailureSerializer(user).data
-            except User.DoesNotExist:
-                error = ErrorSerializer(
-                    {"status": 400, "message": _("User does not exist")}
-                )
-                return Response(error.data)
+            serializer = LoginSerializerV2(data=request.data)
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                try:
+                    user = serializer.login()
+                    if user.get("data"):
+                        response_data = SuccessSerializerV2(user).data
+                    else:
+                        response_data = FailureSerializerV2(user).data
+                except User.DoesNotExist:
+                    error = ErrorSerializerV2(
+                        {"status": 400, "message": _("User does not exist")}
+                    )
+                    return Response(error.data)
 
         return Response(response_data)
 
@@ -49,8 +75,17 @@ class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        pass
+    def get(self, request, version="v2"):
+        if version == "v1":
+            serializer = LogoutSerializer(instance=request.user)
+            user = serializer.logout()
+            response_data = SuccessSerializer(user).data
+        else:
+            serializer = LogoutSerializerV2(instance=request.user)
+            user = serializer.logout()
+            response_data = SuccessSerializerV2(user).data
+
+        return Response(response_data)
 
 
 class RegisterView(APIView):
@@ -64,14 +99,23 @@ class RegisterView(APIView):
 
     throttle_scope = "signup"
 
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
+    def post(self, request, version="v2"):
+        if version == "v1":
+            serializer = RegisterSerializer(data=request.data)
 
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                user = serializer.register()
+                response_data = SuccessSerializer(user).data
         else:
-            user = serializer.register()
-            response_data = SuccessSerializer(user).data
+            serializer = RegisterSerializerV2(data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                user = serializer.register()
+                response_data = SuccessSerializerV2(user).data
 
         return Response(response_data)
 
@@ -88,14 +132,27 @@ class ChangePasswordView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
+    def post(self, request, version="v2"):
+        if version == "v1":
+            serializer = ChangePasswordSerializer(
+                instance=request.user, data=request.data
+            )
 
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                user = serializer.change_password()
+                response_data = SuccessSerializer(user).data
         else:
-            user = serializer.change_password()
-            response_data = SuccessSerializer(user).data
+            serializer = ChangePasswordSerializerV2(
+                instance=request.user, data=request.data
+            )
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                user = serializer.change_password()
+                response_data = SuccessSerializerV2(user).data
 
         return Response(response_data)
 
@@ -113,25 +170,42 @@ class ProfileView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        serializer = ProfileSerializer(instance=request.user)
-        response_data = SuccessSerializer({"data": serializer.data}).data
-
-        return Response(response_data)
-
-    def put(self, request):
-        serializer = ProfileSerializer(instance=request.user, data=request.data)
-
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+    def get(self, request, version="v2"):
+        if version == "v1":
+            serializer = ProfileSerializer(instance=request.user)
+            response_data = SuccessSerializer({"data": serializer.data}).data
         else:
-            user = serializer.update_profile()
-            response_data = SuccessSerializer(user).data
+            serializer = ProfileSerializerV2(instance=request.user)
+            response_data = SuccessSerializerV2({"data": serializer.data}).data
 
         return Response(response_data)
 
-    def util(self, request):
-        serializer = ProfileSerializer(instance=request.user)
-        response_data = SuccessSerializer({"data": serializer.util()}).data
+    def put(self, request, version="v2"):
+        if version == "v1":
+            serializer = ProfileSerializer(instance=request.user, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+            else:
+                user = serializer.update_profile()
+                response_data = SuccessSerializer(user).data
+        else:
+            serializer = ProfileSerializerV2(instance=request.user, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+            else:
+                user = serializer.update_profile()
+                response_data = SuccessSerializerV2(user).data
+
+        return Response(response_data)
+
+    def util(self, request, version="v2"):
+        if version == "v1":
+            serializer = ProfileSerializer(instance=request.user)
+            response_data = SuccessSerializer({"data": serializer.util()}).data
+        else:
+            serializer = ProfileSerializerV2(instance=request.user)
+            response_data = SuccessSerializerV2({"data": serializer.util()}).data
 
         return Response(response_data)

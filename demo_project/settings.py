@@ -60,6 +60,7 @@ REST_FRAMEWORK = {
     # ],
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"signup": "5/min", "transaction": "5/min"},
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
 }
 
 MIDDLEWARE = [
