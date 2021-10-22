@@ -6,7 +6,7 @@ from ..models import User
 
 class SignupTests(APITestCase):
     def test_user_signup_failure_password_mismatch(self):
-        url = reverse("signup")
+        url = reverse("signup", kwargs={"version": "v1"})
         data = {
             "email": "test-user@gmail.co",
             "username": "Test_User",
@@ -18,7 +18,7 @@ class SignupTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_signup_failure_user_already_exists(self):
-        url = reverse("signup")
+        url = reverse("signup", kwargs={"version": "v1"})
         data = {
             "email": "test-user@gmail.co",
             "username": "Test_User",
@@ -33,7 +33,7 @@ class SignupTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_user_signup_success(self):
-        url = reverse("signup")
+        url = reverse("signup", kwargs={"version": "v1"})
         data = {
             "email": "test-user@gmail.co",
             "username": "Test_User",

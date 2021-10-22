@@ -13,14 +13,14 @@ class CreateTransactionTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token)
 
     def test_wallet_add_balance_failure_auth_token_missing(self):
-        url = reverse("balance")
+        url = reverse("balance", kwargs={"version": "v1"})
         data = {"balance": "50"}
         self.client.force_authenticate(user=self.user)
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_wallet_add_balance_success(self):
-        url = reverse("balance")
+        url = reverse("balance", kwargs={"version": "v1"})
         data = {"balance": "50"}
         self.client.force_authenticate(user=self.user)
         response = self.client.put(url, data, format="json")

@@ -13,12 +13,12 @@ class LogoutTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token)
 
     def test_user_logout_failure_auth_token_missing(self):
-        url = reverse("logout")
+        url = reverse("logout", kwargs={"version": "v1"})
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_user_logout_success(self):
-        url = reverse("logout")
+        url = reverse("logout", kwargs={"version": "v1"})
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
