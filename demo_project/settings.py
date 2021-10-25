@@ -15,6 +15,9 @@ from pathlib import Path
 import os
 import environ
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 # Initialise environment variables
 env = environ.Env()
 environ.Env.read_env()
@@ -154,3 +157,13 @@ BASE_URL = "http://localhost:8000"
 AUTH_USER_MODEL = "users.User"
 
 STRIPE_API_KEY = env("STRIPE_API_KEY")
+
+
+sentry_sdk.init(
+    dsn=env("SENTRY_DSN_URL"),
+    integrations=[DjangoIntegration()],
+
+    traces_sample_rate=1.0,
+
+    send_default_pii=True,
+)
