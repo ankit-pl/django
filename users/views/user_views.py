@@ -23,6 +23,7 @@ from ..serializers import (
 )
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
+from rest_framework.versioning import AcceptHeaderVersioning
 
 
 class LoginView(APIView):
@@ -35,9 +36,10 @@ class LoginView(APIView):
     """
 
     permission_classes = [HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def post(self, request, version="v2"):
-        if version == "v1":
+    def post(self, request):
+        if request.version == "1.0":
             serializer = LoginSerializer(data=request.data)
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
@@ -76,9 +78,10 @@ class LoginView(APIView):
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def get(self, request, version="v2"):
-        if version == "v1":
+    def get(self, request):
+        if request.version == "1.0":
             serializer = LogoutSerializer(instance=request.user)
             user = serializer.logout()
             response_data = SuccessSerializer(user).data
@@ -101,9 +104,10 @@ class RegisterView(APIView):
 
     throttle_scope = "signup"
     permission_classes = [HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def post(self, request, version="v2"):
-        if version == "v1":
+    def post(self, request):
+        if request.version == "1.0":
             serializer = RegisterSerializer(data=request.data)
 
             if not serializer.is_valid():
@@ -134,9 +138,10 @@ class ChangePasswordView(APIView):
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def post(self, request, version="v2"):
-        if version == "v1":
+    def post(self, request):
+        if request.version == "1.0":
             serializer = ChangePasswordSerializer(
                 instance=request.user, data=request.data
             )
@@ -172,9 +177,10 @@ class ProfileView(APIView):
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def get(self, request, version="v2"):
-        if version == "v1":
+    def get(self, request):
+        if request.version == "1.0":
             serializer = ProfileSerializer(instance=request.user)
             response_data = SuccessSerializer({"data": serializer.data}).data
         else:
@@ -183,8 +189,8 @@ class ProfileView(APIView):
 
         return Response(response_data)
 
-    def put(self, request, version="v2"):
-        if version == "v1":
+    def put(self, request):
+        if request.version == "1.0":
             serializer = ProfileSerializer(instance=request.user, data=request.data)
 
             if not serializer.is_valid():
@@ -203,8 +209,8 @@ class ProfileView(APIView):
 
         return Response(response_data)
 
-    def util(self, request, version="v2"):
-        if version == "v1":
+    def util(self, request):
+        if request.version == "1.0":
             serializer = ProfileSerializer(instance=request.user)
             response_data = SuccessSerializer({"data": serializer.util()}).data
         else:

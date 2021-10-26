@@ -55,7 +55,8 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"signup": "5/min", "transaction": "5/min"},
-    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
+    "DEFAULT_VERSION": "1.1",
+    "ALLOWED_VERSIONS": ["1.0", "1.1"],
 }
 
 MIDDLEWARE = [

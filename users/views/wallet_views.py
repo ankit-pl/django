@@ -12,6 +12,7 @@ from ..serializers import (
     FailureSerializerV2,
 )
 from rest_framework_api_key.permissions import HasAPIKey
+from rest_framework.versioning import AcceptHeaderVersioning
 
 
 class BalanceView(APIView):
@@ -27,11 +28,12 @@ class BalanceView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
     throttle_scope = "transaction"
+    versioning_class = AcceptHeaderVersioning
 
-    def get(self, request, version="v2"):
+    def get(self, request):
         wallet = WalletInformation.objects.get(user=request.user)
 
-        if version == "v1":
+        if request.version == "1.0":
             serializer = BalanceSerializer(instance=wallet)
             response_data = SuccessSerializer({"data": serializer.data}).data
         else:
@@ -40,10 +42,10 @@ class BalanceView(APIView):
 
         return Response(response_data)
 
-    def put(self, request, version="v2"):
+    def put(self, request):
         wallet = WalletInformation.objects.get(user=request.user)
 
-        if version == "v1":
+        if request.version == "1.0":
             serializer = BalanceSerializer(instance=wallet, data=request.data)
 
             if not serializer.is_valid():

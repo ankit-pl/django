@@ -16,6 +16,7 @@ from ..serializers import (
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
+from rest_framework.versioning import AcceptHeaderVersioning
 
 
 class CardsView(APIView):
@@ -30,12 +31,13 @@ class CardsView(APIView):
 
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
+    versioning_class = AcceptHeaderVersioning
 
-    def get(self, request, version="v2"):
+    def get(self, request):
         data = []
         cards = Card.objects.filter(user=request.user)
 
-        if version == "v1":
+        if request.version == "1.0":
             for card in cards:
                 serializer = CardSerializer(instance=card)
                 data.append(serializer.data)
@@ -50,7 +52,7 @@ class CardsView(APIView):
 
         return Response(response_data)
 
-    def post(self, request, version="v2"):
+    def post(self, request):
         stripe.api_key = settings.STRIPE_API_KEY
         card = stripe.Customer.create_source(
             request.user.customer_id,
@@ -59,7 +61,7 @@ class CardsView(APIView):
         request.data["card_id"] = card.id
         request.data["user"] = request.user.user_id
 
-        if version == "v1":
+        if request.version == "1.0":
             serializer = CardSerializer(data=request.data)
 
             if not serializer.is_valid():
@@ -78,10 +80,10 @@ class CardsView(APIView):
 
         return Response(response_data)
 
-    def delete(self, request, version="v2"):
+    def delete(self, request):
         try:
             card = Card.objects.get(card_id=request.data["card_id"])
-            if version == "v1":
+            if request.version == "1.0":
                 serializer = CardSerializer(instance=card)
                 card = serializer.delete()
                 response_data = SuccessSerializer(card).data
