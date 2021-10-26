@@ -47,17 +47,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "users.apps.UsersConfig",
     "rest_framework",
+    "rest_framework_api_key",
     "rest_framework.authtoken",
     "translation_manager",
 ]
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': [
-    #     'rest_framework.authentication.TokenAuthentication'
-    # ],
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated'
-    # ],
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {"signup": "5/min", "transaction": "5/min"},
     "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning",
@@ -170,3 +165,5 @@ BASE_URL = "http://localhost:8000"
 AUTH_USER_MODEL = "users.User"
 
 STRIPE_API_KEY = env("STRIPE_API_KEY")
+
+API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"

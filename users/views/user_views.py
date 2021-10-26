@@ -1,4 +1,3 @@
-from rest_framework import serializers
 from ..models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,6 +22,7 @@ from ..serializers import (
     LogoutSerializerV2,
 )
 from django.utils.translation import gettext_lazy as _
+from rest_framework_api_key.permissions import HasAPIKey
 
 
 class LoginView(APIView):
@@ -33,6 +33,8 @@ class LoginView(APIView):
     In case of validation failure or error, a response with failure message
     will be returned.
     """
+
+    permission_classes = [HasAPIKey]
 
     def post(self, request, version="v2"):
         if version == "v1":
