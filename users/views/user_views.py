@@ -75,7 +75,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def get(self, request, version="v2"):
         if version == "v1":
@@ -100,6 +100,7 @@ class RegisterView(APIView):
     """
 
     throttle_scope = "signup"
+    permission_classes = [HasAPIKey]
 
     def post(self, request, version="v2"):
         if version == "v1":
@@ -132,7 +133,7 @@ class ChangePasswordView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def post(self, request, version="v2"):
         if version == "v1":
@@ -170,7 +171,7 @@ class ProfileView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def get(self, request, version="v2"):
         if version == "v1":

@@ -15,6 +15,7 @@ from ..serializers import (
 )
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from rest_framework_api_key.permissions import HasAPIKey
 
 
 class CardsView(APIView):
@@ -28,7 +29,7 @@ class CardsView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def get(self, request, version="v2"):
         data = []

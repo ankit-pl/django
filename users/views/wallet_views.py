@@ -11,6 +11,7 @@ from ..serializers import (
     SuccessSerializerV2,
     FailureSerializerV2,
 )
+from rest_framework_api_key.permissions import HasAPIKey
 
 
 class BalanceView(APIView):
@@ -24,7 +25,7 @@ class BalanceView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
     throttle_scope = "transaction"
 
     def get(self, request, version="v2"):
