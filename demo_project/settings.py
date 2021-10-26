@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_api_key",
 ]
 
 # REST_FRAMEWORK = {
@@ -60,6 +61,12 @@ INSTALLED_APPS = [
 #         'rest_framework.permissions.IsAuthenticated'
 #     ]
 # }
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework_api_key.permissions.HasAPIKey",
+    ]
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

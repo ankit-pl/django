@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_api_key.permissions import HasAPIKey
 from ..serializers import (
     RegisterSerializer,
     ChangePasswordSerializer,
@@ -22,6 +23,8 @@ class LoginView(APIView):
     In case of validation failure or error, a response with failure message
     will be returned.
     """
+
+    permission_classes = [HasAPIKey]
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -46,7 +49,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey ]
 
     def get(self, request):
         pass
@@ -60,12 +63,13 @@ class RegisterView(APIView):
     In case of validation failure or error, a response with failure message
     will be returned.
     """
+    permission_classes = [HasAPIKey]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
 
         if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors})
+            response_data = FailureSerializer({"data": serializer.errors}).data
         else:
             user = serializer.register()
             response_data = SuccessSerializer(user).data
@@ -83,7 +87,7 @@ class ChangePasswordView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def post(self, request):
         serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
@@ -108,7 +112,7 @@ class ProfileView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
 
     def get(self, request):
         serializer = ProfileSerializer(instance=request.user)
