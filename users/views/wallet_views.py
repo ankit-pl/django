@@ -13,6 +13,7 @@ from ..serializers import (
 )
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class BalanceView(APIView):
@@ -29,6 +30,7 @@ class BalanceView(APIView):
     permission_classes = [IsAuthenticated | HasAPIKey]
     throttle_scope = "transaction"
     versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def get(self, request):
         wallet = WalletInformation.objects.get(user=request.user)
@@ -40,6 +42,7 @@ class BalanceView(APIView):
             serializer = BalanceSerializerV2(instance=wallet)
             response_data = SuccessSerializerV2({"data": serializer.data}).data
 
+        self.logger.info("test error")
         return Response(response_data)
 
     def put(self, request):
