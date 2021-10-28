@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from ..serializers import (
+    FailureSerializer,
     FailureSerializerV2,
     SuccessSerializerV2,
 )
@@ -11,6 +12,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class PaymentView(APIView):
@@ -25,12 +27,14 @@ class PaymentView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
     versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def post(self, request):
         if request.version == "1.0":
-            response_data = FailureSerializerV2(
-                {"message": _("FEATURE NOT AVAILABLE.")}
+            response_data = FailureSerializer(
+                {"message": _("Feature not available.")}
             ).data
+            self.logger.error("Feature not available.")
         else:
             stripe.api_key = settings.STRIPE_API_KEY
             if not request.data.get("customer"):
@@ -39,6 +43,7 @@ class PaymentView(APIView):
                         "message": "CUSTOMER PARAMETER MISSING. PLEASE INCLUDE `CUSTOMER` PARAMETER IN REQUEST BODY."
                     }
                 ).data
+                self.logger.error("CUSTOMER PARAMETER MISSING. PLEASE INCLUDE `CUSTOMER` PARAMETER IN REQUEST BODY.")
             else:
                 payment = stripe.PaymentIntent.create(**request.data)
                 response_data = SuccessSerializerV2({"data": payment}).data

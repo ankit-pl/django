@@ -24,6 +24,7 @@ from ..serializers import (
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class LoginView(APIView):
@@ -37,12 +38,14 @@ class LoginView(APIView):
 
     permission_classes = [HasAPIKey]
     versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def post(self, request):
         if request.version == "1.0":
             serializer = LoginSerializer(data=request.data)
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 try:
                     user = serializer.login()
@@ -50,15 +53,18 @@ class LoginView(APIView):
                         response_data = SuccessSerializer(user).data
                     else:
                         response_data = FailureSerializer(user).data
+                        self.logger.error(user.get("message", ""))
                 except User.DoesNotExist:
                     error = ErrorSerializer(
                         {"status": 400, "message": _("User does not exist")}
                     )
+                    self.logger.error("User does not exist")
                     return Response(error.data)
         else:
             serializer = LoginSerializerV2(data=request.data)
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 try:
                     user = serializer.login()
@@ -66,10 +72,12 @@ class LoginView(APIView):
                         response_data = SuccessSerializerV2(user).data
                     else:
                         response_data = FailureSerializerV2(user).data
+                        self.logger.error(user.get("message", ""))
                 except User.DoesNotExist:
                     error = ErrorSerializerV2(
-                        {"status": 400, "message": _("User does not exist")}
+                        {"status": 400, "message": _("USER DOES NOT EXIST")}
                     )
+                    self.logger.error("USER DOES NOT EXIST")
                     return Response(error.data)
 
         return Response(response_data)
@@ -112,6 +120,7 @@ class RegisterView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.register()
                 response_data = SuccessSerializer(user).data
@@ -120,6 +129,7 @@ class RegisterView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.register()
                 response_data = SuccessSerializerV2(user).data
@@ -148,6 +158,7 @@ class ChangePasswordView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.change_password()
                 response_data = SuccessSerializer(user).data
@@ -158,6 +169,7 @@ class ChangePasswordView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.change_password()
                 response_data = SuccessSerializerV2(user).data
@@ -195,6 +207,7 @@ class ProfileView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.update_profile()
                 response_data = SuccessSerializer(user).data
@@ -203,6 +216,7 @@ class ProfileView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 user = serializer.update_profile()
                 response_data = SuccessSerializerV2(user).data

@@ -17,6 +17,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class CardsView(APIView):
@@ -32,6 +33,7 @@ class CardsView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated | HasAPIKey]
     versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def get(self, request):
         data = []
@@ -66,6 +68,7 @@ class CardsView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 card = serializer.add_card()
                 response_data = SuccessSerializer(card).data
@@ -74,6 +77,7 @@ class CardsView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 card = serializer.add_card()
                 response_data = SuccessSerializerV2(card).data
@@ -97,11 +101,13 @@ class CardsView(APIView):
             error = ErrorSerializer(
                 {"status": 400, "message": _("Card does not exist.")}
             )
+            self.logger.error("Card does not exist.")
 
             return Response(error.data)
         except Exception:
             error = ErrorSerializer(
                 {"status": 400, "message": _("Card id is not provided.")}
             )
+            self.logger.error("Card id is not provided.")
 
             return Response(error.data)

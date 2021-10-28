@@ -42,7 +42,6 @@ class BalanceView(APIView):
             serializer = BalanceSerializerV2(instance=wallet)
             response_data = SuccessSerializerV2({"data": serializer.data}).data
 
-        self.logger.info("test error")
         return Response(response_data)
 
     def put(self, request):
@@ -53,6 +52,7 @@ class BalanceView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 balance = serializer.add_balance()
                 response_data = SuccessSerializer(balance).data
@@ -61,6 +61,7 @@ class BalanceView(APIView):
 
             if not serializer.is_valid():
                 response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
             else:
                 balance = serializer.add_balance()
                 response_data = SuccessSerializerV2(balance).data

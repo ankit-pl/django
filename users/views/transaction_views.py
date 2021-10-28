@@ -11,6 +11,7 @@ from ..serializers import (
 from django.utils.translation import gettext_lazy as _
 from rest_framework_api_key.permissions import HasAPIKey
 from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class TransactionView(APIView):
@@ -26,12 +27,14 @@ class TransactionView(APIView):
     permission_classes = [IsAuthenticated | HasAPIKey]
     throttle_scope = "transaction"
     versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def get(self, request):
         if request.version == "1.0":
             response_data = FailureSerializer(
                 {"message": _("Feature not available.")}
             ).data
+            self.logger.error("Feature not available.")
         else:
             data = []
             transactions = Transaction.objects.filter(wallet_id=request.user.wallet)

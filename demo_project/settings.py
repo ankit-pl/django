@@ -194,13 +194,9 @@ LOGGING = {
         }
     },
     'loggers': {
-        'app1': {
+        'users': {
             'handlers': ['applogfile', 'console'],
             'level': 'DEBUG',
-        },
-        'app2': {
-            'handlers': ['applogfile', 'console'],
-            'level': 'DEBUG',
-        }
+        }   
     }
 }
