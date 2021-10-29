@@ -1,0 +1,14 @@
+{% extends 'admin/change_list.html' %}
+{% block object-tools %}
+    <form id="is-active-form" method="POST" action="change-active-status">
+        {% csrf_token %}
+        <input name="emails" class="vTextField">
+        <select name="status" class="vSelect">
+            <option value="active">Active</option>
+            <option value="in-active">In-active</option>
+        </select>
+        <button class="button" type="submit">Change Active Status</button>
+    </form>
+    <br>
+    {{ block.super }}
+{% endblock object-tools %}

@@ -3,3 +3,4 @@ flake8
 black
 djangorestframework
 django-environ
+djangorestframework-api-key

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 import os
 import environ
@@ -38,6 +39,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "grappelli",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -46,21 +48,22 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "users.apps.UsersConfig",
     "rest_framework",
+    "rest_framework_api_key",
     "rest_framework.authtoken",
+    "translation_manager",
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.TokenAuthentication'
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated'
-#     ]
-# }
+REST_FRAMEWORK = {
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {"signup": "5/min", "transaction": "5/min"},
+    "DEFAULT_VERSION": "1.1",
+    "ALLOWED_VERSIONS": ["1.0", "1.1"],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -135,6 +138,16 @@ USE_L10N = True
 
 USE_TZ = True
 
+LANGUAGES = (("en", _("English")), ("hi", _("Hindi")))
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, "users/locale")]
+
+TRANSLATIONS_BASE_DIR = os.path.join(BASE_DIR, "users")
+
+TRANSLATIONS_HINT_LANGUAGE = "en"
+
+TRANSLATIONS_PROJECT_BASE_DIR = os.path.join(BASE_DIR, "users")
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
@@ -154,3 +167,37 @@ BASE_URL = "http://localhost:8000"
 AUTH_USER_MODEL = "users.User"
 
 STRIPE_API_KEY = env("STRIPE_API_KEY")
+
+API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s] %(levelname)s|%(name)s|%(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'applogfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': './demo_project/logs/error.log',
+            'maxBytes': 1024*1024*15,  # 15MB
+            'backupCount': 10,
+            'formatter': 'simple',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        }
+    },
+    'loggers': {
+        'users': {
+            'handlers': ['applogfile', 'console'],
+            'level': 'DEBUG',
+        }   
+    }
+}

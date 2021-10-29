@@ -7,7 +7,13 @@ from ..serializers import (
     BalanceSerializer,
     SuccessSerializer,
     FailureSerializer,
+    BalanceSerializerV2,
+    SuccessSerializerV2,
+    FailureSerializerV2,
 )
+from rest_framework_api_key.permissions import HasAPIKey
+from rest_framework.versioning import AcceptHeaderVersioning
+import logging
 
 
 class BalanceView(APIView):
@@ -21,23 +27,43 @@ class BalanceView(APIView):
     """
 
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | HasAPIKey]
+    throttle_scope = "transaction"
+    versioning_class = AcceptHeaderVersioning
+    logger = logging.getLogger(__name__)
 
     def get(self, request):
         wallet = WalletInformation.objects.get(user=request.user)
-        serializer = BalanceSerializer(instance=wallet)
-        response_data = SuccessSerializer({"data": serializer.data}).data
+
+        if request.version == "1.0":
+            serializer = BalanceSerializer(instance=wallet)
+            response_data = SuccessSerializer({"data": serializer.data}).data
+        else:
+            serializer = BalanceSerializerV2(instance=wallet)
+            response_data = SuccessSerializerV2({"data": serializer.data}).data
 
         return Response(response_data)
 
     def put(self, request):
         wallet = WalletInformation.objects.get(user=request.user)
-        serializer = BalanceSerializer(instance=wallet, data=request.data)
 
-        if not serializer.is_valid():
-            response_data = FailureSerializer({"data": serializer.errors}).data
+        if request.version == "1.0":
+            serializer = BalanceSerializer(instance=wallet, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializer({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
+            else:
+                balance = serializer.add_balance()
+                response_data = SuccessSerializer(balance).data
         else:
-            balance = serializer.add_balance()
-            response_data = SuccessSerializer(balance).data
+            serializer = BalanceSerializerV2(instance=wallet, data=request.data)
+
+            if not serializer.is_valid():
+                response_data = FailureSerializerV2({"data": serializer.errors}).data
+                self.logger.error(serializer.errors)
+            else:
+                balance = serializer.add_balance()
+                response_data = SuccessSerializerV2(balance).data
 
         return Response(response_data)

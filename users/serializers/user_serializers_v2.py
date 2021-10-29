@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class LoginSerializerV2(serializers.ModelSerializer):
     """
     Class to recive user login details and return serialized data.
     """
@@ -22,15 +22,21 @@ class LoginSerializer(serializers.ModelSerializer):
             if not Token.objects.filter(user=user).exists():
                 Token.objects.create(user=user)
             response = {
-                "message": _("User logged-in. Use auth token to access the API."),
-                "data": {"auth_token": user.auth_token.key},
+                "message": _("USER LOGGED-IN SUCCESSFULLY."),
+                "data": {
+                    "USERNAME": user.username,
+                    "EMAIL": user.email,
+                    "AUTH_TOKEN": user.auth_token.key,
+                },
             }
         else:
-            response = {"message": _("Please enter the correct password.")}
+            response = {
+                "message": _("WRONG PASSWORD! PLEASE ENTER THE CORRECT PASSWORD.")
+            }
         return response
 
 
-class LogoutSerializer(serializers.ModelSerializer):
+class LogoutSerializerV2(serializers.ModelSerializer):
     """
     Class to recive current user via auth token and logout it from the system.
     """
@@ -40,16 +46,16 @@ class LogoutSerializer(serializers.ModelSerializer):
         fields = []
 
     def logout(self):
-        if Token.objects.filter(user=self.instance).exists():
-            Token.objects.get(user=self.instance).delete()
+        if not Token.objects.filter(user=self.instance).exists():
+            Token.objects.filter(user=self.instance).delete()
 
-            response = {"message": _("User logged-out.")}
+            response = {"message": _("USER LOGGED-OUT SUCCESSFULLY")}
         else:
-            response = {"message": _("User not logged-in. Please login first.")}
+            response = {"message": _("NO USER IS LOGGED-IN")}
         return response
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterSerializerV2(serializers.ModelSerializer):
     """
     Class to recive user registeration details and return serialized
     data.
@@ -68,7 +74,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = self.validated_data["password"]
         confirm_password = self.validated_data["confirm_password"]
         if password != confirm_password:
-            raise serializers.ValidationError({"password": _("Passwords must match.")})
+            raise serializers.ValidationError(
+                {"password": _("PASSWORD AND CONFIRM_PASSWORD DOES NOT MATCH")}
+            )
         else:
             user.set_password(password)
             user.save()
@@ -78,12 +86,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = self.save()
 
         return {
-            "message": _("User registered. Use auth token to access the API."),
-            "data": {"auth_token": user.auth_token.key},
+            "message": _("USER REGISTERED SUCCESSFULLY"),
+            "data": {
+                "USERNAME": user.username,
+                "EMAIL": user.email,
+                "AUTH_TOKEN": user.auth_token.key,
+            },
         }
 
 
-class ChangePasswordSerializer(serializers.ModelSerializer):
+class ChangePasswordSerializerV2(serializers.ModelSerializer):
     """
     Class to recive change password details and return serialized
     data.
@@ -102,10 +114,13 @@ class ChangePasswordSerializer(serializers.ModelSerializer):
     def change_password(self):
         user = self.save()
 
-        return {"message": _(f"Password for user '{user.email}' updated.")}
+        return {
+            "message": _("YOUR PASSWORD HAS BEEN UPDATED, SUCCESSFULLY"),
+            "data": {"USERNAME": user.username, "EMAIL": user.email},
+        }
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializerV2(serializers.ModelSerializer):
     """
     Class to recive user profile data and return serialized data.
     """
@@ -124,7 +139,17 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update_profile(self):
         user = self.save()
 
-        return {"message": _(f"Profile for user '{user.email}' updated.")}
+        return {
+            "message": _("YOUR PROFILE HAS BEEN UPDATED, SUCCESSFULLY"),
+            "data": {
+                "FIRST_NAME": user.first_name,
+                "LAST_NAME": user.last_name,
+                "USERNAME": user.username,
+                "EMAIL": user.email,
+                "IMAGE": user.image,
+                "GEO_LOCATION": user.geo_location,
+            },
+        }
 
     def util(self):
         base_url = settings.BASE_URL

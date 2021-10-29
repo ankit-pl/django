@@ -3,7 +3,7 @@ from ..models import WalletInformation, Transaction
 from django.utils.translation import gettext_lazy as _
 
 
-class BalanceSerializer(serializers.ModelSerializer):
+class BalanceSerializerV2(serializers.ModelSerializer):
     """
     Class to recive wallet details and return serialized data.
     """
@@ -20,13 +20,18 @@ class BalanceSerializer(serializers.ModelSerializer):
             amount=self.validated_data["balance"], wallet=wallet
         )
         data = {
-            "transaction_id": transaction.transaction_id,
-            "type": transaction.type,
-            "amount": transaction.amount,
-            "transaction_details": transaction.transaction_details,
-            "status": transaction.status,
-            "date_created": transaction.date_created,
-            "wallet": transaction.wallet.wallet_id,
+            "TRANSACTION_ID": transaction.transaction_id,
+            "TYPE": transaction.type,
+            "AMOUNT": transaction.amount,
+            "TRANSACTION_DETAILS": transaction.transaction_details,
+            "STATUS": transaction.status,
+            "DATE_CREATED": transaction.date_created,
+            "WALLET": transaction.wallet.wallet_id,
         }
 
-        return {"message": _(f"Balance for user '{wallet.user}' added."), "data": data}
+        return {
+            "message": _(
+                f"{transaction.amount} {wallet.currency} HAS BEEN ADDED TO YOUR WALLET BALANCE"
+            ),
+            "data": data,
+        }

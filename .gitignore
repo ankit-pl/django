@@ -3,3 +3,5 @@ manage.py
 __pycache__/
 migrations/
 .vscode/
+*.log
+*.po
